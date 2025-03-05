@@ -1,0 +1,8 @@
+:guage        -> gauge
+:the:the:     -> the
+:thier:       -> their
+:ture:        -> true
+aparent:      -> apparent
+fasle         -> false
+flase:        -> false
+inlcude       -> include

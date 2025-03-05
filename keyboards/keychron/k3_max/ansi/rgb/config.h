@@ -15,7 +15,10 @@
  */
 
 #pragma once
-
+#define MK_KINETIC_SPEED
+#define MOUSEKEY_INITIAL_SPEED 200
+#define MOUSE_MOVE_DELTA 32
+#define MOUSE_KEY_DELAY 2
 #ifdef RGB_MATRIX_ENABLE
 /* RGB Matrix driver configuration */
 #    define DRIVER_COUNT 2

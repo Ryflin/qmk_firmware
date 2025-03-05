@@ -82,3 +82,6 @@
 #define FN_KEY_2 MO(3)
 
 #define MATRIX_IO_DELAY 10
+
+// set kinetic mode to keycaps
+#define MK_KINETIC_SPEED
