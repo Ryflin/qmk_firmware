@@ -33,6 +33,7 @@ enum custom_keycodes {
     SND_AWE,
     SND_HOM,
 };
+
 bool           checking_password;
 char           password[17];
 int            password_index;
@@ -146,7 +147,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             break;
         case OSU_PSS:
             if (record->event.pressed) {
-                SEND_STRING(osu_crypt);
+                SEND_STRING(test);
             }
             break;
         case MR_ROOM:

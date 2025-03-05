@@ -6,6 +6,7 @@
 ._*
 encryption.c
 encryption.out
+globals2.c
 
 # Merge files
 *.orig
