@@ -20,7 +20,7 @@ void send_tab_spaces(unsigned char cnt) {
 // 96-128 is down arrows
 // 128-160 is up arrows
 // for now the rest will remain unassigned
-bool room_macro(unsigned char *tabs) {
+bool room_macro(uint8_t *tabs) {
     for (int i = 0; tabs[i] != '\0'; i++) {
         if (tabs[i] <= 32) {
             send_tab_spaces(tabs[i]);
@@ -31,7 +31,7 @@ bool room_macro(unsigned char *tabs) {
             send_one_thing(tabs[i] - 64, SS_TAP(X_SPACE));
         } else if (tabs[i] <= 128) {
             // send_down_arrow(tabs[i] - 96);
-            send_one_thing(tabs[i] - 96, SS_TAP(X_DOWN));
+            send_one_thing(tabs[i] - 96, SS_TAP(X_1));
         } else if (tabs[i] <= 160) {
             // send_up_arrow(tabs[i] - 128);
             send_one_thing(tabs[i] - 128, SS_TAP(X_UP));

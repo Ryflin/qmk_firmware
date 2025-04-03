@@ -16,9 +16,11 @@
 
 #pragma once
 #define MK_KINETIC_SPEED
+#define MOUSEKEY_TIME_TO_MAX 15
 #define MOUSEKEY_INITIAL_SPEED 200
+#define MOUSEKEY_MAX_SPEED 20
 #define MOUSE_MOVE_DELTA 32
-#define MOUSE_KEY_DELAY 2
+#define MOUSE_KEY_DELAY 1
 #ifdef RGB_MATRIX_ENABLE
 /* RGB Matrix driver configuration */
 #    define DRIVER_COUNT 2

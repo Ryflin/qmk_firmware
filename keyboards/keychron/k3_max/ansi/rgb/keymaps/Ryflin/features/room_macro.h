@@ -1,1 +1,1 @@
-bool room_macro(unsigned char *tabs);
+bool room_macro(uint8_t *tabs);

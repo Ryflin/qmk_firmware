@@ -18,6 +18,7 @@
 #include "keychron_common.h"
 #include "features/room_macro.h"
 #include "features/decrypt.h"
+// #include "led_matrix/led_matrix.h"
 #include "globals.h"
 
 #define SPACE_LAYER_SHIFT LT(1, KC_SPC)
@@ -28,20 +29,24 @@ enum custom_keycodes {
     OSU_PSS = SAFE_RANGE,
     MR_SIGN,
     MR_ROOM,
+    MR_RV3,
     C_PASS,
     CHK_PASS,
     SND_AWE,
     SND_HOM,
+    HOME_PS,
+    PSS_FIX,
+    HOM_KEY,
 };
 
-bool           checking_password;
-char           password[17];
-int            password_index;
-unsigned char *room_main = dreese_room_matrix;
-enum {
-    TD_ESC_CAPS,
-    TD_B1_3,
-};
+bool checking_password;
+char password[17];
+int  password_index;
+
+uint8_t room_enhanced[] = {32 + 21, 4, 160 + 3, 32 + 1, 3, 32 + 1, 3, 32 + 2, 2, 32 + 4, 5, 128 + 3, 32 + 1, 4, 128 + 1, 32 + 1, 10, 32 + 1, 6, 0};
+uint8_t room_v3[]       = {32 + 21, 4, 160 + 3, 32 + 1, 5, 32 + 1, 3, 32 + 2, 128 + 2, 32 + 1, 18, 32 + 1, 6, 0};
+
+enum { TD_ESC_CAPS, TD_B1_3, f };
 tap_dance_action_t tap_dance_actions[] = {
     // Tap once for Escape, twice for Caps Lock
     [TD_ESC_CAPS] = ACTION_TAP_DANCE_LAYER_TOGGLE(KC_ESC, WIN_FN),
@@ -59,11 +64,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 [MAC_FN] = LAYOUT_ansi_84(
      _______,  KC_F1,    KC_F2,    KC_F3,    KC_F4,    KC_F5,    KC_F6,    KC_F7,    KC_F8,    KC_F9,    KC_F10,   KC_F11,   KC_F12,   KC_SNAP,  _______,  RGB_TOG,
-     MR_SIGN,  BT_HST1,  BT_HST2,  BT_HST3,  P2P4G,    _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            _______,
-     KC_ASTR,  KC_CIRC,  KC_AMPR,  KC_PIPE,  KC_PLUS,  KC_MINUS, _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            _______,
-     KC_COLN,  KC_TILD,  KC_PERC,  KC_DLR,   KC_EQL,   KC_PERC,  _______,  KC_LEFT,  KC_DOWN,  KC_UP,    KC_RIGHT, KC_UNDS,            _______,            _______,
-     KC_LCTL,            KC_BSLS,  KC_HASH,  _______,  KC_K,     BAT_LVL,  NK_TOGG,  _______,  _______,  _______,  _______,            _______,  _______,  _______,
-     OSU_PSS,  _______,  _______,                                _______,                                _______,  _______,  _______,  _______,  _______,  _______),
+     MR_SIGN,  BT_HST1,  BT_HST2,  BT_HST3,  P2P4G,    _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            MR_ROOM,
+     KC_ASTR,  KC_CIRC,  KC_AMPR,  KC_PIPE,  KC_PLUS,  KC_MINUS, _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            MR_RV3,
+     KC_COLN,  KC_TILD,  KC_DLR,   KC_DLR,   KC_EQL,   KC_PERC,  _______,  KC_LEFT,  KC_DOWN,  KC_UP,    KC_RIGHT, KC_UNDS,            _______,            _______,
+     KC_LCTL,            KC_BSLS,  KC_HASH,  KC_LCBR,  KC_K,     BAT_LVL,  NK_TOGG,  _______,  _______,  _______,  _______,            _______,  _______,  _______,
+     OSU_PSS,  _______,  _______,                                _______,                                _______,  _______,  _______,  _______,  _______,  AC_ON ),
 
 [WIN_BASE] = LAYOUT_ansi_84(
      KC_ESC,   KC_F1,    KC_F2,    KC_F3,    KC_F4,    KC_F5,    KC_F6,    KC_F7,    KC_F8,    KC_F9,    KC_F10,   KC_F11,   KC_F12,   KC_PSCR,  KC_DEL,   RGB_MOD,
@@ -89,12 +94,12 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 //      _______,  _______,  _______,                                _______,                                _______,  _______,  _______,  _______,  _______,  _______),
 
 [WIN_FN] = LAYOUT_ansi_84(
-    _______,  KC_BRID,  KC_BRIU,  KC_TASK,  KC_FILE,  RGB_VAD,  RGB_VAI,    KC_MPRV,    KC_MPLY,      KC_MNXT,   KC_MUTE,   KC_VOLD,  KC_VOLU,  _______,  _______,  RGB_TOG,
-    _______,  BT_HST1,  BT_HST2,  BT_HST3,  P2P4G,    _______,  _______,    _______,    _______,      _______,   _______,   _______,  _______,  _______,            _______,
-    C_PASS,   _______,  _______,  _______,  _______,  _______,  _______,    KC_MS_WH_UP,KC_MS_WH_DOWN,KC_MS_BTN2,KC_MS_BTN3,_______,  _______,  _______,            _______,
-  TG(WIN_FN), SND_HOM,  _______,  _______,  _______,  _______,  KC_MS_BTN1, KC_MS_L,    KC_MS_UP,     KC_MS_D,   KC_MS_R,   _______,            _______,            _______,
-    CHK_PASS,           _______,  _______,  _______,  _______,  BAT_LVL,    NK_TOGG,    _______,      _______,   _______,   _______,            _______,  _______,  _______,
-    SND_AWE,  _______,  _______,                                      KC_SPC,                                    _______,   _______,  _______,  _______,  _______,  _______)
+_______,  KC_BRID,  KC_BRIU,  KC_TASK,  KC_FILE,  RGB_VAD,  RGB_VAI,    KC_MPRV,    KC_MPLY,      KC_MNXT,   KC_MUTE,   KC_VOLD,  KC_VOLU,  _______,  _______,  RGB_TOG,
+PSS_FIX,  BT_HST1,  BT_HST2,  BT_HST3,  P2P4G,    _______,  _______,    _______,    _______,      _______,   _______,   _______,  _______,  _______,            _______,
+SND_HOM,  HOME_PS,  HOM_KEY,  _______,  _______,  _______,  _______,    KC_MS_WH_UP,KC_MS_WH_DOWN,KC_MS_BTN2,KC_MS_BTN3,_______,  _______,  _______,            _______,
+TG(WIN_FN),SND_AWE, _______,  _______,  _______,  _______,  KC_MS_BTN1, KC_MS_L,    KC_MS_UP,     KC_MS_D,   KC_MS_R,   _______,            _______,            _______,
+CHK_PASS,           _______,  _______,  _______,  _______,  BAT_LVL,    NK_TOGG,    _______,      _______,   _______,   _______,            _______,  _______,  _______,
+_______,  _______,  _______,                                      KC_SPC,                                    _______,   _______,  _______,  _______,  _______,  _______)
 };
 // clang-format on
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
@@ -102,10 +107,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         if (keycode == KC_ENT || password_index > 16) {
             password[password_index] = '\0';
             checking_password        = false;
-            decrypt(password, password_index, lamb, 5);
-            decrypt(password, password_index, awesome, 15);
-            decrypt(password, password_index, my_home, 17);
-
+            // SEND_STRING(password);
+            // decrypt_all(password, password_index);
             return false;
         } else {
             if (record->event.pressed && keycode < 40) {
@@ -114,19 +117,48 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         }
         return false;
     }
+    // if (record->event.pressed) {
+    //     LED_MATRIX_USE_LIMITS(led_min, led_max);
+    //     // Trigger RGB effect for the pressed key
+    //     uint8_t row = record->event.key.row;
+    //     uint8_t col = record->event.key.col;
+    //     led_matrix_set_value(row, col, 255); // Set the RGB value to maximum brightness
+    // }
     switch (keycode) {
+        case HOME_PS:
+            if (record->event.pressed) {
+                decrypt(password, password_index, passwords[4], buffer, password_sizes[4]);
+                SEND_STRING(buffer);
+            }
+            break;
         case SND_HOM:
             if (record->event.pressed) {
-                SEND_STRING(my_home);
+                decrypt(password, password_index, passwords[1], buffer, password_sizes[1]);
+                SEND_STRING(buffer);
             }
+            break;
         case SND_AWE:
             if (record->event.pressed) {
-                SEND_STRING(awesome);
+                decrypt(password, password_index, passwords[3], buffer, password_sizes[3]);
+                SEND_STRING(buffer);
+                // SEND_STRING(passwords[3]);
+            }
+            break;
+        case HOM_KEY:
+            if (record->event.pressed) {
+                decrypt(password, password_index, passwords[2], buffer, password_sizes[2]);
+                SEND_STRING(buffer);
+                // SEND_STRING(passwords[2]);
             }
             break;
         case CHK_PASS:
             if (record->event.pressed) {
-                SEND_STRING(password);
+                // SEND_STRING(password);
+            }
+            break;
+        case PSS_FIX:
+            if (record->event.pressed) {
+                decrypt_all(password, password_index);
             }
             break;
         case C_PASS:
@@ -141,19 +173,27 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             // mr_sign:
             if (record->event.pressed) {
                 SEND_STRING("schley.20" SS_TAP(X_TAB));
-                SEND_STRING(osu_crypt);
+                SEND_STRING(passwords[0]);
+                SEND_STRING(SS_DELAY(100));
                 SEND_STRING(SS_TAP(X_ENT));
             }
             break;
         case OSU_PSS:
             if (record->event.pressed) {
-                SEND_STRING(test);
+                SEND_STRING(passwords[0]);
             }
             break;
+        case MR_RV3: {
+            if (record->event.pressed) {
+                room_macro(room_v3);
+            }
+            break;
+        }
         case MR_ROOM:
             if (record->event.pressed) {
-                room_macro(room_main);
+                room_macro(room_enhanced);
             }
+            break;
     }
     if (!process_record_keychron_common(keycode, record)) {
         return false;
