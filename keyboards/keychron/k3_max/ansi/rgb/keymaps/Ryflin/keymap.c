@@ -108,7 +108,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             password[password_index] = '\0';
             checking_password        = false;
             // SEND_STRING(password);
-            // decrypt_all(password, password_index);
+            decrypt_all(password, password_index);
             return false;
         } else {
             if (record->event.pressed && keycode < 40) {
@@ -127,40 +127,34 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case HOME_PS:
             if (record->event.pressed) {
-                decrypt(password, password_index, passwords[4], buffer, password_sizes[4]);
-                SEND_STRING(buffer);
+                SEND_STRING(passwords[4]);
             }
             break;
         case SND_HOM:
             if (record->event.pressed) {
-                decrypt(password, password_index, passwords[1], buffer, password_sizes[1]);
-                SEND_STRING(buffer);
+                SEND_STRING(passwords[1]);
             }
             break;
         case SND_AWE:
             if (record->event.pressed) {
-                decrypt(password, password_index, passwords[3], buffer, password_sizes[3]);
-                SEND_STRING(buffer);
-                // SEND_STRING(passwords[3]);
+                SEND_STRING(passwords[3]);
             }
             break;
         case HOM_KEY:
             if (record->event.pressed) {
-                decrypt(password, password_index, passwords[2], buffer, password_sizes[2]);
-                SEND_STRING(buffer);
-                // SEND_STRING(passwords[2]);
+                SEND_STRING(passwords[2]);
             }
             break;
         case CHK_PASS:
             if (record->event.pressed) {
-                // SEND_STRING(password);
+                SEND_STRING(password);
             }
             break;
-        case PSS_FIX:
-            if (record->event.pressed) {
-                decrypt_all(password, password_index);
-            }
-            break;
+        // case PSS_FIX:
+        //     if (record->event.pressed) {
+        //         decrypt_all(password, password_index);
+        //     }
+        //     break;
         case C_PASS:
             if (record->event.pressed) {
                 checking_password = true;

@@ -1,13 +1,14 @@
 #include "../globals.h"
 // #include <stdio.h>
-void decrypt(char *seed, int seedlen, char *data, char *buffer, unsigned long datalen) {
+void decrypt(char *seed, int seedlen, char *data, unsigned long datalen) {
     unsigned long index = 0;
     for (int i = 0; i < datalen; i++) {
-        unsigned char temp = (data[i] ^ seed[i % seedlen]);
+        char temp = (data[i] ^ seed[i % seedlen]);
         if (temp > ' ' && temp <= '~') {
-            buffer[index++] = temp;
+            data[index++] = temp;
         }
     }
+    // printf("%s\n", data);
     data[index] = '\0';
 }
 
