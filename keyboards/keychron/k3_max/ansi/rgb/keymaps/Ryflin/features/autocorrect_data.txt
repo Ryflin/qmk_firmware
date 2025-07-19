@@ -1,7 +1,6 @@
 :guage              -> gauge
 :the:the:           -> the
 :thier              -> their
-:ture               -> true
 accomodate          -> accommodate
 acommodate          -> accommodate
 aparent             -> apparent
@@ -62,6 +61,7 @@ reuslt              -> result
 reutrn              -> return
 saftey              -> safety
 seperate            -> separate
+:sovle              -> solve
 stirng              -> string
 strign              -> string
 swithc              -> switch

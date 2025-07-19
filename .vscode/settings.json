@@ -31,5 +31,6 @@
     "clangd.arguments": [
         "--header-insertion=never"
     ],
-    "cmake.sourceDirectory": "/home/sam/.qmk_firmware/lib/googletest"
+    "cmake.sourceDirectory": "/home/sam/.qmk_firmware/lib/googletest",
+    "nixEnvSelector.suggestion": false
 }
