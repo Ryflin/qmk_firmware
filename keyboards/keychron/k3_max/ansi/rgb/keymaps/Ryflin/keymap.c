@@ -33,14 +33,14 @@
 #define KC_M_4 KC_MS_BTN4
 #define MS_W_R KC_MS_WH_RIGHT
 #define MS_W_L KC_MS_WH_LEFT
-#define M_LG_A LGUI_T(KC_A)
-#define M_LA_R LALT_T(KC_R)
+#define M_LA_A LALT_T(KC_A)
+#define M_LG_R LGUI_T(KC_R)
 #define M_LS_S LSFT_T(KC_S)
 #define M_LC_T LCTL_T(KC_T)
 #define M_RC_N RCTL_T(KC_N)
 #define M_RS_E RSFT_T(KC_E)
-#define M_RA_I RALT_T(KC_I)
-#define M_RG_O RGUI_T(KC_O)
+#define M_RG_I RGUI_T(KC_I)
+#define M_RA_O RALT_T(KC_O)
 
 
 enum layers { MAC_BASE, MAC_FN, WIN_BASE, WIN_FN, LAYR1, LAYR2 };
@@ -60,6 +60,7 @@ enum custom_keycodes {
     MY_HELP,
     MY_VCMD,
     SND_KEY,
+    GM_PASS,
 };
 bool math;
 bool checking_password;
@@ -85,7 +86,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      KC_ESC,   KC_BRID,  KC_BRIU,  KC_MCTRL, KC_LNPAD, RGB_VAD,  RGB_VAI,  KC_MPRV,  KC_MPLY,  KC_MNXT,  KC_MUTE,  KC_VOLD,  KC_VOLU,  KC_CAPS,  KC_DEL,   _______,
      KC_GRV,   KC_1,     KC_2,     KC_3,     KC_4,     KC_5,     KC_6,     KC_7,     KC_8,     KC_9,     KC_0,     KC_MINS,  KC_EQL,   KC_BSPC,            KC_PGUP,
      KC_TAB,   KC_Q,     KC_W,     KC_F,     KC_P,     KC_G,     KC_J,     KC_L,     KC_U,     KC_Y,     KC_SCLN,  KC_LBRC,  KC_RBRC,  KC_BSLS,            KC_PGDN,
-     TD_E_F,   M_LG_A,   M_LA_R,   M_LS_S,   M_LC_T,   KC_D,     TD_H_D,   M_RC_N,   M_RS_E,   M_RA_I,   M_RG_O,   KC_QUOT,            KC_ENT,             KC_HOME,
+     TD_E_F,   M_LA_A,   M_LG_R,   M_LS_S,   M_LC_T,   KC_D,     TD_H_D,   M_RC_N,   M_RS_E,   M_RG_I,   M_RA_O,   KC_QUOT,            KC_ENT,             KC_HOME,
      KC_LSFT,            KC_Z,     KC_X,     KC_C,     KC_V,     KC_B,     KC_K,     KC_M,     KC_COMM,  KC_DOT,   KC_SLSH,            KC_RSFT,  KC_UP,    KC_END,
      KC_LCTL,  KC_LGUI,  KC_LALT,                             SPACE_LAYER_SHIFT,                         KC_RALT,  _______,  KC_RCTL,  KC_LEFT,  KC_DOWN,  KC_RGHT),
 
@@ -124,7 +125,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     _______,  KC_BRID,  KC_BRIU,  KC_TASK,  KC_FILE,  RGB_VAD,  RGB_VAI, KC_MPRV,  KC_MPLY,  KC_MNXT,  KC_MUTE,   KC_VOLD,  KC_VOLU,  _______,  _______,  RGB_TOG,
     PSS_FIX,  BT_HST1,  BT_HST2,  BT_HST3,  P2P4G,    SND_KEY,  _______, _______,  _______,  _______,  _______,   _______,  _______,  _______,            _______,
     HOMEY_P,  HOME_PS,  HOM_KEY,  MS_W_L,   MS_W_R,   SND_AWE,  _______, KC_MS_WH_UP,KC_MS_WH_DOWN,KC_M_2,KC_M_3, _______,  _______,  _______,            _______,
-    TG(WIN_FN),KC_M_4,  KC_M_3,   KC_M_2,   KC_M_1,   _______,  KC_M_1,  KC_MS_L,  KC_MS_UP, KC_MS_D,  KC_MS_R,   _______,            _______,            _______,
+    TG(WIN_FN),KC_M_4,  KC_M_3,   KC_M_2,   KC_M_1,   GM_PASS,  KC_M_1,  KC_MS_L,  KC_MS_UP, KC_MS_D,  KC_MS_R,   _______,            _______,            _______,
     CHK_PASS,           _______,  _______,  _______,  _______,  BAT_LVL, NK_TOGG,  _______,  _______,  _______,   _______,            _______,  _______,  _______,
     _______,  _______,  _______,                                      KC_SPC,                          _______,   _______,  _______,  _______,  _______,  _______)
 };
@@ -154,7 +155,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             fill_math(keycode + 19);
         } else if (keycode == M_RS_E) { // shit that is hardcoded to the exact finger that is determining a and e
             fill_math('e');
-        } else if (keycode == M_LG_A) {
+        } else if (keycode == M_LA_A) {
             fill_math('a');
         } else {
             cache_operation(keycode);
@@ -220,6 +221,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case SND_KEY:
             SEND_STRING(passwords[4]);
             break;
+        case GM_PASS:
+            SEND_STRING(passwords[5]);
     }
     return true;
 }
@@ -258,7 +261,7 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
         case TD_D_R:
         case TD_E_F:
             return TAPPING_TERM + 200;
-        case M_LG_A:
+        case M_LA_A:
             return TAPPING_TERM + 75;
         case M_RC_N:
             return TAPPING_TERM + 50;
