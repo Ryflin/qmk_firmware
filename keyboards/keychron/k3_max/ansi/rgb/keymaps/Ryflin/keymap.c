@@ -42,7 +42,6 @@
 #define M_RG_I RGUI_T(KC_I)
 #define M_RA_O RALT_T(KC_O)
 
-
 enum layers { MAC_BASE, MAC_FN, WIN_BASE, WIN_FN, LAYR1, LAYR2 };
 enum custom_keycodes {
     OSU_PSS = SAFE_RANGE,
@@ -61,11 +60,15 @@ enum custom_keycodes {
     MY_VCMD,
     SND_KEY,
     GM_PASS,
+    VI_MODE
 };
+bool vi_normal_mode = true;
 bool math;
 bool checking_password;
-char password[17];
+bool vim_mode = false;
+bool vim_mode_slash;
 int  password_index;
+char password[16];
 
 uint8_t room_enhanced[] = {32 + 21, 4, 160 + 3, 32 + 1, 3, 32 + 1, 3, 32 + 2, 2, 32 + 4, 5, 128 + 3, 32 + 1, 4, 128 + 1, 32 + 1, 10, 32 + 1, 6, 0};
 uint8_t room_v3[]       = {32 + 21, 4, 160 + 3, 32 + 1, 5, 32 + 1, 3, 32 + 2, 128 + 2, 32 + 1, 18, 32 + 1, 6, 0};
@@ -75,7 +78,7 @@ enum { TD_ESC_CAPS, TD_DEL_H, TD_D_RIGHT, TD_SPC_UNDR };
 tap_dance_action_t tap_dance_actions[] = {
     // Tap once for Escape, twice for Caps Lock
     [TD_ESC_CAPS] = ACTION_TAP_DANCE_LAYER_TOGGLE(KC_ESC, WIN_FN),
-    [TD_DEL_H]   = ACTION_TAP_DANCE_DOUBLE(KC_H, C(KC_BSPC)),
+    [TD_DEL_H]    = ACTION_TAP_DANCE_DOUBLE(KC_H, C(KC_BSPC)),
     [TD_D_RIGHT]  = ACTION_TAP_DANCE_DOUBLE(KC_D, KC_RIGHT),
 
 };
@@ -88,7 +91,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      KC_TAB,   KC_Q,     KC_W,     KC_F,     KC_P,     KC_G,     KC_J,     KC_L,     KC_U,     KC_Y,     KC_SCLN,  KC_LBRC,  KC_RBRC,  KC_BSLS,            KC_PGDN,
      TD_E_F,   M_LA_A,   M_LG_R,   M_LS_S,   M_LC_T,   KC_D,     TD_H_D,   M_RC_N,   M_RS_E,   M_RG_I,   M_RA_O,   KC_QUOT,            KC_ENT,             KC_HOME,
      KC_LSFT,            KC_Z,     KC_X,     KC_C,     KC_V,     KC_B,     KC_K,     KC_M,     KC_COMM,  KC_DOT,   KC_SLSH,            KC_RSFT,  KC_UP,    KC_END,
-     KC_LCTL,  KC_LGUI,  KC_LALT,                             SPACE_LAYER_SHIFT,                         KC_RALT,  _______,  KC_RCTL,  KC_LEFT,  KC_DOWN,  KC_RGHT),
+     KC_LCTL,  KC_LGUI,  KC_LALT,                             SPACE_LAYER_SHIFT,                         KC_RALT,  VI_MODE,  KC_RCTL,  KC_LEFT,  KC_DOWN,  KC_RGHT),
 
 [MAC_FN] = LAYOUT_ansi_84(
      _______,  KC_F1,    KC_F2,    KC_F3,    KC_F4,    KC_F5,    KC_F6,    KC_F7,    KC_F8,    KC_F9,    KC_F10,   KC_F11,   KC_F12,   KC_SNAP,  _______,  RGB_TOG,
@@ -102,25 +105,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      KC_ESC,   KC_F1,    KC_F2,    KC_F3,    KC_F4,    KC_F5,    KC_F6,    KC_F7,    KC_F8,    KC_F9,    KC_F10,   KC_F11,   KC_F12,   KC_PSCR,  KC_DEL,   RGB_MOD,
      KC_GRV,   KC_1,     KC_2,     KC_3,     KC_4,     KC_5,     KC_6,     KC_7,     KC_8,     KC_9,     KC_0,     KC_MINS,  KC_EQL,   KC_BSPC,            KC_PGUP,
      KC_TAB,   KC_Q,     KC_W,     KC_E,     KC_R,     KC_T,     KC_Y,     KC_U,     KC_I,     KC_O,     KC_P,     KC_LBRC,  KC_RBRC,  KC_BSLS,            KC_PGDN,
-     KC_CAPS,  KC_A,     KC_S,     KC_D,     KC_F,     KC_G,     KC_H,     KC_J,     KC_K,     KC_L,     KC_SCLN,  KC_QUOT,            KC_ENT,             KC_HOME,
+     TD_E_F,   KC_A,     KC_S,     KC_D,     KC_F,     KC_G,     KC_H,     KC_J,     KC_K,     KC_L,     KC_SCLN,  KC_QUOT,            KC_ENT,             KC_HOME,
      KC_LSFT,            KC_Z,     KC_X,     KC_C,     KC_V,     KC_B,     KC_N,     KC_M,     KC_COMM,  KC_DOT,   KC_SLSH,            KC_RSFT,  KC_UP,    KC_END,
-     KC_LCTL,  KC_LGUI,  KC_LALT,                                KC_SPC,                                 KC_RALT, MO(WIN_FN),KC_RCTL,  KC_LEFT,  KC_DOWN,  KC_RGHT),
-
-// [LAYR1] = LAYOUT_ansi_84(
-//      _______,  KC_BRID,  KC_BRIU,  KC_TASK,  KC_FILE,  RGB_VAD,  RGB_VAI,  KC_MPRV,  KC_MPLY,  KC_MNXT,  KC_MUTE,  KC_VOLD,  KC_VOLU,  _______,  _______,  RGB_TOG,
-//      _______,  BT_HST1,  BT_HST2,  BT_HST3,  P2P4G,    _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            _______,
-//      RGB_TOG,  RGB_MOD,  RGB_VAI,  RGB_HUI,  RGB_SAI,  RGB_SPI,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            _______,
-//      _______,  RGB_RMOD, RGB_VAD,  RGB_HUD,  RGB_SAD,  RGB_SPD,  _______,  _______,  _______,  _______,  _______,  _______,            _______,            _______,
-//      _______,            _______,  _______,  _______,  _______,  BAT_LVL,  NK_TOGG,  _______,  _______,  _______,  _______,            _______,  _______,  _______,
-//      _______,  _______,  _______,                                _______,                                _______,  _______,  _______,  _______,  _______,  _______),
-// [LAYR2] = LAYOUT_ansi_84(
-//      _______,  KC_BRID,  KC_BRIU,  KC_TASK,  KC_FILE,  RGB_VAD,  RGB_VAI,  KC_MPRV,  KC_MPLY,  KC_MNXT,  KC_MUTE,  KC_VOLD,  KC_VOLU,  _______,  _______,  RGB_TOG,
-//      _______,  BT_HST1,  BT_HST2,  BT_HST3,  P2P4G,    _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            _______,
-//      RGB_TOG,  RGB_MOD,  RGB_VAI,  RGB_HUI,  RGB_SAI,  RGB_SPI,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            _______,
-//      _______,  RGB_RMOD, RGB_VAD,  RGB_HUD,  RGB_SAD,  RGB_SPD,  _______,  _______,  _______,  _______,  _______,  _______,            _______,            _______,
-//      _______,            _______,  _______,  _______,  _______,  BAT_LVL,  NK_TOGG,  _______,  _______,  _______,  _______,            _______,  _______,  _______,
-//      _______,  _______,  _______,                                _______,                                _______,  _______,  _______,  _______,  _______,  _______),
-
+     KC_LCTL,  KC_LGUI,  KC_LALT,                                KC_SPC,                                 KC_RALT,  VI_MODE,  KC_RCTL,  KC_LEFT,  KC_DOWN,  KC_RGHT),
 [WIN_FN] = LAYOUT_ansi_84(
     _______,  KC_BRID,  KC_BRIU,  KC_TASK,  KC_FILE,  RGB_VAD,  RGB_VAI, KC_MPRV,  KC_MPLY,  KC_MNXT,  KC_MUTE,   KC_VOLD,  KC_VOLU,  _______,  _______,  RGB_TOG,
     PSS_FIX,  BT_HST1,  BT_HST2,  BT_HST3,  P2P4G,    SND_KEY,  _______, _______,  _______,  _______,  _______,   _______,  _______,  _______,            _______,
@@ -175,6 +162,28 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         }
         return false;
     }
+    if (vim_mode) {
+        // the reason for this is that the key needs to send (aka a send true) before changing the layer
+        if (vi_normal_mode) {
+            layer_on(WIN_BASE);
+        } else {
+            layer_off(WIN_BASE);
+        }
+        if (vi_normal_mode && (keycode == KC_A || keycode == KC_O || keycode == KC_I || keycode == KC_S)) {
+            // SEND_STRING("iInsertmode started");
+            vi_normal_mode = false;
+        } else if (vi_normal_mode && keycode == KC_SLSH) {
+            // SEND_STRING("iINSERT_SLASH");
+            vi_normal_mode = false;
+            vim_mode_slash = true;
+        } else if (keycode == TD_E_F) {
+            // SEND_STRING("i INSERT MODE STARTED");
+            vi_normal_mode = !vi_normal_mode;
+        } else if (keycode == KC_ENT && vim_mode_slash) {
+            vim_mode_slash = false;
+            vi_normal_mode = true;
+        }
+    }
     switch (keycode) {
         case HOME_PS:
             SEND_STRING(passwords[2]);
@@ -223,6 +232,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             break;
         case GM_PASS:
             SEND_STRING(passwords[5]);
+            break;
+        case VI_MODE:
+            if (!vim_mode) {
+                vi_normal_mode = true;
+            }
+            vim_mode = !vim_mode;
+            break;
     }
     return true;
 }
@@ -252,6 +268,9 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
                     rgb_matrix_set_color(i, RGB_RED);
                 }
             }
+        }
+        if (vim_mode) {
+            rgb_matrix_set_color(0x1c, RGB_YELLOW);
         }
     }
     return false;
