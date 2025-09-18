@@ -4,7 +4,7 @@ uint16_t a             = 0;
 uint16_t operation     = KC_Q;
 uint16_t b             = 0;
 bool     hex           = true;
-bool     bin_rep[0x11] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0};
+bool     bin_rep[0x11] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0};
 bool     ans           = false;
 bool verbose = false;
 
@@ -28,15 +28,6 @@ void convert_to_bin(uint16_t n) {
         bin_rep[i - 1] = in_number_array(i, n);
     }
     bin_rep[16] = bin_rep[0];
-    // bin_rep[0] = bin_rep[16];
-    // char buffer[20];
-    // buffer[0] = '0';
-    // buffer[1] = 'b';
-    // for (int i = 0; i < 16; i++) {
-    //     buffer[i + 2] = bin_rep[i] ? '1' : '0';
-    // }
-    // buffer[18] = '\n';
-    // buffer[19] = '\0';
 }
 
 void uint16_to_string(void) {
@@ -88,11 +79,11 @@ void uint16_to_string(void) {
 
 
 void fill_math(unsigned char c) {
-    char buff[2];
-    buff[0] = c;
-    buff[1] = '\0';
-    SEND_STRING(buff);
-    SEND_STRING("\n");
+    // char buff[2];
+    // buff[0] = c;
+    // buff[1] = '\0';
+    // SEND_STRING(buff);
+    // SEND_STRING("\n");
     ans = false;
 
     if (hex) {
@@ -100,7 +91,7 @@ void fill_math(unsigned char c) {
     } else {
         b = (b * 10) + hex_char_to_int(c);
     }
-    uint16_to_string();
+    // uint16_to_string();
 }
 void cache_operation(uint16_t keycode) {
     operation = keycode;
@@ -109,11 +100,11 @@ void cache_operation(uint16_t keycode) {
     }
     convert_to_bin(a);
     b = 0;
-    SEND_STRING("CACHE OPERATION\n");
+    // SEND_STRING("CACHE OPERATION\n");
 }
 
 void apply_operations(void) {
-    char buff[2] = {98, 0};
+    // char buff[2] = {98, 0};
     switch (operation) {
         case KC_G: // *^&|+-
             a = a + b;
@@ -133,7 +124,7 @@ void apply_operations(void) {
         case KC_W:
             a = a & b;
             break;
-        case KC_F:
+        case KC_N:
             a = a | b;
             break;
         case KC_DOT:
@@ -142,17 +133,16 @@ void apply_operations(void) {
         case KC_COMM:
             a = a << b;
             break;
-        case KC_QUOT:
-            buff[0] = a;
-            SEND_STRING(buff);
+        case KC_D:
+            a = a % b;
             break;
     }
 
     convert_to_bin(a);
     b   = 0;
-    if (verbose) {
-        uint16_to_string();
-    }
+    // if (verbose) {
+    //     uint16_to_string();
+    // }
     ans = true;
 }
 

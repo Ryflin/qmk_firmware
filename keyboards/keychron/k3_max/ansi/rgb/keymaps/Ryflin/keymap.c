@@ -60,7 +60,8 @@ enum custom_keycodes {
     MY_VCMD,
     SND_KEY,
     GM_PASS,
-    VI_MODE
+    VI_MODE,
+    PASTE_B,
 };
 bool vi_normal_mode = true;
 bool math;
@@ -113,7 +114,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     PSS_FIX,  BT_HST1,  BT_HST2,  BT_HST3,  P2P4G,    SND_KEY,  _______, _______,  _______,  _______,  _______,   _______,  _______,  _______,            _______,
     HOMEY_P,  HOME_PS,  HOM_KEY,  MS_W_L,   MS_W_R,   SND_AWE,  _______, KC_MS_WH_UP,KC_MS_WH_DOWN,KC_M_2,KC_M_3, _______,  _______,  _______,            _______,
     TG(WIN_FN),KC_M_4,  KC_M_3,   KC_M_2,   KC_M_1,   GM_PASS,  KC_M_1,  KC_MS_L,  KC_MS_UP, KC_MS_D,  KC_MS_R,   _______,            _______,            _______,
-    CHK_PASS,           _______,  _______,  _______,  _______,  BAT_LVL, NK_TOGG,  _______,  _______,  _______,   _______,            _______,  _______,  _______,
+    CHK_PASS,           _______,  _______,  _______,  _______,  PASTE_B, NK_TOGG,  _______,  _______,  _______,   _______,            _______,  _______,  _______,
     _______,  _______,  _______,                                      KC_SPC,                          _______,   _______,  _______,  _______,  _______,  _______)
 };
 
@@ -238,6 +239,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 vi_normal_mode = true;
             }
             vim_mode = !vim_mode;
+            break;
+        case PASTE_B:
+            SEND_STRING(passwords[6]);
             break;
     }
     return true;
