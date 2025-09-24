@@ -63,14 +63,15 @@ enum custom_keycodes {
     VI_MODE,
     PASTE_B,
 };
-bool vi_normal_mode = true;
+
 bool math;
 bool checking_password;
-bool vim_mode = false;
+
 bool vim_mode_slash;
 int  password_index;
 char password[16];
-
+bool vim_mode       = false;
+bool vi_normal_mode = true;
 uint8_t room_enhanced[] = {32 + 21, 4, 160 + 3, 32 + 1, 3, 32 + 1, 3, 32 + 2, 2, 32 + 4, 5, 128 + 3, 32 + 1, 4, 128 + 1, 32 + 1, 10, 32 + 1, 6, 0};
 uint8_t room_v3[]       = {32 + 21, 4, 160 + 3, 32 + 1, 5, 32 + 1, 3, 32 + 2, 128 + 2, 32 + 1, 18, 32 + 1, 6, 0};
 char    help_string[]   = "This is the help.\nMathMode\nEnter='spc+5'\nPlus:'g'\nmult:'tab'\nMinus:'p'\nDiv:'/'\n\nVim:sp+l=:w\n:!";
@@ -100,7 +101,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      KC_ASTR,  KC_CIRC,  KC_AMPR,  KC_PIPE,  KC_MINUS, KC_PLUS, _______,   MY_VCMD,  DT_UP,    DT_DOWN,  DT_PRNT,  _______,  _______,  _______,            MR_RV3,
      KC_COLN,  KC_EXLM,  KC_UNDS,  KC_DLR,   KC_EQL,   KC_PERC,  MY_HELP,  KC_LEFT,  KC_DOWN,  KC_UP,    KC_RIGHT, KC_UNDS,            _______,            _______,
      KC_LCTL,            KC_BSLS,  KC_HASH,  KC_LCBR,  KC_K,     BAT_LVL,  NK_TOGG,  _______,  _______,  _______,  _______,            _______,  _______,  _______,
-     OSU_PSS,  _______,  _______,                                _______,                                _______,  C_PASS,   _______,  _______,  _______,  AC_TOGG ),
+     OSU_PSS,  _______,  _______,                             SPACE_LAYER_SHIFT,                         _______,  C_PASS,   _______,  _______,  _______,  AC_TOGG ),
 
 [WIN_BASE] = LAYOUT_ansi_84(
      KC_ESC,   KC_F1,    KC_F2,    KC_F3,    KC_F4,    KC_F5,    KC_F6,    KC_F7,    KC_F8,    KC_F9,    KC_F10,   KC_F11,   KC_F12,   KC_PSCR,  KC_DEL,   RGB_MOD,
@@ -165,12 +166,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
     if (vim_mode) {
         // the reason for this is that the key needs to send (aka a send true) before changing the layer
-        if (vi_normal_mode) {
-            layer_on(WIN_BASE);
-        } else {
-            layer_off(WIN_BASE);
-        }
-        if (vi_normal_mode && (keycode == KC_A || keycode == KC_O || keycode == KC_I || keycode == KC_S)) {
+
+        if (vi_normal_mode && (keycode == KC_A || keycode == KC_O || keycode == KC_I || keycode == KC_S || keycode = KC_C)) {
             // SEND_STRING("iInsertmode started");
             vi_normal_mode = false;
         } else if (vi_normal_mode && keycode == KC_SLSH) {
@@ -302,3 +299,72 @@ bool get_hold_on_other_key_press(uint16_t keycode, keyrecord_t *record) {
             return false;
     }
 }
+//////// TREAT AS NEW FILE
+struct vi_state_record {
+    uint16_t state_keys[];
+    char     index;
+    char     end;
+    void (*handler);
+};
+
+void vi_normal(uint16_t keycode, keyrecord_t *record);
+void vi_set_layer();
+void (*vi_state_function)(uint16_t, keyrecord_t *) = vi_normal;
+
+void vi_terminal(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
+
+    }
+}
+void exit_vim() {
+    vim_mode = false;
+    vi_normal_mode = false;
+    vi_set_layer();
+    vi_normal_mode = true;
+}
+void enter_vi() {
+    vim_mode = true;
+}
+
+void vi_normal(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
+        case KC_COLN:
+            vi_state_function = vi_terminal;
+            break;
+        case KC_SLSH:
+            vi_state_function = vi_terminal;
+            break;
+        default:
+
+    }
+}
+struct vi_state_record vi_states[] = {
+    {{KC_COLN, KC_Q}, 0, 2, exit_vi},
+    {{KC_COLN, KC_E}, 0, 2, enter_vi},
+    {{KC_V, KC_I, KC_M}, 0, 3, enter_vi}
+};
+int vi_states_size = 3;
+bool vi_fsm_base(uint16_t keycode, keyrecord_t *record) {
+    if (keycode == KC_ENT) {
+        for (int i = 0; i < vi_states_size; i++) {
+            if (vi_states[i].index == vi_states[i].end) {
+                
+            }
+        }
+    } else {
+        for (int i = 0; i < vi_states_size; i++) {
+            if (vi_states[i].state_keys[vi_states[i].index] == keycode) {
+                vi_states[i].index ++;
+            }
+        }
+    }
+}
+
+void vi_set_layer() {
+    if (vi_normal_mode) {
+        layer_on(WIN_BASE);
+    } else {
+        layer_off(WIN_BASE);
+    }
+}
+
