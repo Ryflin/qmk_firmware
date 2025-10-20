@@ -14,6 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <stdint.h>
 #include QMK_KEYBOARD_H
 #include "keychron_common.h"
 #include "features/room_macro.h"
@@ -41,8 +42,14 @@
 #define M_RS_E RSFT_T(KC_E)
 #define M_RG_I RGUI_T(KC_I)
 #define M_RA_O RALT_T(KC_O)
+// definitons for the querty versions...
+// df, jk
+#define M_LS_D LSFT_T(KC_D)
+#define M_LC_F LCTL_T(KC_F)
+#define M_RC_J RCTL_T(KC_J)
+#define M_RS_K RSFT_T(KC_K)
 
-enum layers { MAC_BASE, MAC_FN, WIN_BASE, WIN_FN, LAYR1, LAYR2 };
+enum layers { MAC_BASE, MAC_FN, WIN_BASE, WIN_FN, VIM_BASE, LAYR2 };
 enum custom_keycodes {
     OSU_PSS = SAFE_RANGE,
     MR_SIGN,
@@ -62,20 +69,27 @@ enum custom_keycodes {
     GM_PASS,
     VI_MODE,
     PASTE_B,
+    TOR_LNK,
+    USER_06,
+    USER_07,
+    USER_08,
+    USER_09,
 };
-
-bool math;
-bool checking_password;
-
-bool vim_mode_slash;
-int  password_index;
-char password[16];
-bool vim_mode       = false;
-bool vi_normal_mode = true;
+bool    math;
+bool    checking_password;
+bool    vi_colon_mode = false;
+bool    vi_slash_mode;
+int     password_index;
+char    password[16];
+char    vi_wq           = 0;
+bool    vi_mode         = false;
+bool    vi_command_mode = false;
+bool    vi_normal_mode  = true;
 uint8_t room_enhanced[] = {32 + 21, 4, 160 + 3, 32 + 1, 3, 32 + 1, 3, 32 + 2, 2, 32 + 4, 5, 128 + 3, 32 + 1, 4, 128 + 1, 32 + 1, 10, 32 + 1, 6, 0};
 uint8_t room_v3[]       = {32 + 21, 4, 160 + 3, 32 + 1, 5, 32 + 1, 3, 32 + 2, 128 + 2, 32 + 1, 18, 32 + 1, 6, 0};
 char    help_string[]   = "This is the help.\nMathMode\nEnter='spc+5'\nPlus:'g'\nmult:'tab'\nMinus:'p'\nDiv:'/'\n\nVim:sp+l=:w\n:!";
 
+int stateLen = 1;
 enum { TD_ESC_CAPS, TD_DEL_H, TD_D_RIGHT, TD_SPC_UNDR };
 tap_dance_action_t tap_dance_actions[] = {
     // Tap once for Escape, twice for Caps Lock
@@ -97,9 +111,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 [MAC_FN] = LAYOUT_ansi_84(
      _______,  KC_F1,    KC_F2,    KC_F3,    KC_F4,    KC_F5,    KC_F6,    KC_F7,    KC_F8,    KC_F9,    KC_F10,   KC_F11,   KC_F12,   KC_SNAP,  _______,  RGB_TOG,
-     MR_SIGN,  BT_HST1,  BT_HST2,  BT_HST3,  P2P4G,    MATH,     _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            MR_ROOM,
-     KC_ASTR,  KC_CIRC,  KC_AMPR,  KC_PIPE,  KC_MINUS, KC_PLUS, _______,   MY_VCMD,  DT_UP,    DT_DOWN,  DT_PRNT,  _______,  _______,  _______,            MR_RV3,
-     KC_COLN,  KC_EXLM,  KC_UNDS,  KC_DLR,   KC_EQL,   KC_PERC,  MY_HELP,  KC_LEFT,  KC_DOWN,  KC_UP,    KC_RIGHT, KC_UNDS,            _______,            _______,
+     MR_SIGN,  BT_HST1,  BT_HST2,  BT_HST3,  P2P4G,    MATH,     TOR_LNK,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            MR_ROOM,
+     KC_ASTR,  KC_CIRC,  KC_AMPR,  KC_PIPE,  KC_MINUS, KC_PLUS,  MY_HELP,  MY_VCMD,  DT_UP,    DT_DOWN,  DT_PRNT,  _______,  _______,  _______,            MR_RV3,
+     KC_COLN,  KC_EXLM,  KC_UNDS,  KC_DLR,   KC_EQL,   KC_PERC,  KC_LEFT,  KC_DOWN,  KC_UP,  KC_RIGHT,   _______,  KC_UNDS,            _______,            _______,
      KC_LCTL,            KC_BSLS,  KC_HASH,  KC_LCBR,  KC_K,     BAT_LVL,  NK_TOGG,  _______,  _______,  _______,  _______,            _______,  _______,  _______,
      OSU_PSS,  _______,  _______,                             SPACE_LAYER_SHIFT,                         _______,  C_PASS,   _______,  _______,  _______,  AC_TOGG ),
 
@@ -112,14 +126,44 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      KC_LCTL,  KC_LGUI,  KC_LALT,                                KC_SPC,                                 KC_RALT,  VI_MODE,  KC_RCTL,  KC_LEFT,  KC_DOWN,  KC_RGHT),
 [WIN_FN] = LAYOUT_ansi_84(
     _______,  KC_BRID,  KC_BRIU,  KC_TASK,  KC_FILE,  RGB_VAD,  RGB_VAI, KC_MPRV,  KC_MPLY,  KC_MNXT,  KC_MUTE,   KC_VOLD,  KC_VOLU,  _______,  _______,  RGB_TOG,
-    PSS_FIX,  BT_HST1,  BT_HST2,  BT_HST3,  P2P4G,    SND_KEY,  _______, _______,  _______,  _______,  _______,   _______,  _______,  _______,            _______,
+    PSS_FIX,  BT_HST1,  BT_HST2,  BT_HST3,  P2P4G,    SND_KEY,  USER_06, _______,  _______,  _______,  _______,   _______,  _______,  _______,            _______,
     HOMEY_P,  HOME_PS,  HOM_KEY,  MS_W_L,   MS_W_R,   SND_AWE,  _______, KC_MS_WH_UP,KC_MS_WH_DOWN,KC_M_2,KC_M_3, _______,  _______,  _______,            _______,
     TG(WIN_FN),KC_M_4,  KC_M_3,   KC_M_2,   KC_M_1,   GM_PASS,  KC_M_1,  KC_MS_L,  KC_MS_UP, KC_MS_D,  KC_MS_R,   _______,            _______,            _______,
     CHK_PASS,           _______,  _______,  _______,  _______,  PASTE_B, NK_TOGG,  _______,  _______,  _______,   _______,            _______,  _______,  _______,
-    _______,  _______,  _______,                                      KC_SPC,                          _______,   _______,  _______,  _______,  _______,  _______)
+    _______,  _______,  _______,                                      KC_SPC,                          _______,   _______,  _______,  _______,  _______,  _______),
+[VIM_BASE] = LAYOUT_ansi_84(
+     KC_ESC,   KC_F1,    KC_F2,    KC_F3,    KC_F4,    KC_F5,    KC_F6,    KC_F7,    KC_F8,    KC_F9,    KC_F10,   KC_F11,   KC_F12,   KC_PSCR,  KC_DEL,   RGB_MOD,
+     KC_GRV,   KC_1,     KC_2,     KC_3,     KC_4,     KC_5,     KC_6,     KC_7,     KC_8,     KC_9,     KC_0,     KC_MINS,  KC_EQL,   KC_BSPC,            KC_PGUP,
+     KC_TAB,   KC_Q,     KC_W,     KC_E,     KC_R,     KC_T,     KC_Y,     KC_U,     KC_I,     KC_O,     KC_P,     KC_LBRC,  KC_RBRC,  KC_BSLS,            KC_PGDN,
+     TD_E_F,   KC_A,     KC_S,     M_LS_D,   M_LC_F,   KC_G,     KC_H,     M_RC_J,   M_RS_K,   KC_L,     KC_SCLN,  KC_QUOT,            KC_ENT,             KC_HOME,
+     KC_LSFT,            KC_Z,     KC_X,     KC_C,     KC_V,     KC_B,     KC_N,     KC_M,     KC_COMM,  KC_DOT,   KC_SLSH,            KC_RSFT,  KC_UP,    KC_END,
+     KC_LCTL,  KC_LGUI,  KC_LALT,                             SPACE_LAYER_SHIFT,                         KC_RALT,  VI_MODE,  KC_RCTL,  KC_LEFT,  KC_DOWN,  KC_RGHT),
 };
 
-// clang-format on
+
+uint16_t  vim_keys[] = {KC_V, KC_I, KC_M, KC_ENT, 0};
+uint16_t vi_quit[] = {KC_SCLN, KC_W, KC_Q, KC_ENT, 0};
+
+
+void vi_enter(void) {
+    layer_on(VIM_BASE);
+}
+typedef struct fsm {
+    char index;
+    uint16_t *states;
+    void (*fp)(void);
+} fsm;
+
+fsm state[] = {
+    {
+        .index = 0,
+        .states = vim_keys,
+        .fp = vi_enter
+    }
+};
+void get_pass(int index) {
+    decrypt_to_buffer(password, password_index, passwords[index], password_sizes[index], buffer);
+}
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (!record->event.pressed) {
         if (!process_record_keychron_common(keycode, record)) {
@@ -127,6 +171,19 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         }
         return true;
     }
+    // for (int i = 0; i < stateLen; i++) {
+    //     int index = state[i].index;
+    //     if (keycode == state[i].states[index]) {
+    //         state[i].index ++;
+    //     } else if(state[i].states[index] == KC_NO) {
+    //         if(keycode == state[i].states[index+1]) {
+    //             index += 2;
+    //         }
+    //     }
+    //     if(state[i].states[index] == 0) {
+    //         state[i].fp();
+    //     }
+    // }
     if (math) {
         if (keycode == KC_ESC) {
             math = false;
@@ -154,9 +211,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         return false;
     }
     if (checking_password) {
-        if (keycode == KC_ENT || password_index > 16) {
+        if (keycode == KC_ENT || password_index >= 16) {
             password[password_index] = '\0';
-            decrypt_all(password, password_index);
+            // decrypt_all(password, password_index);
             checking_password = false;
         } else {
             password[password_index++] = keycode + 93;
@@ -164,33 +221,36 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         }
         return false;
     }
-    if (vim_mode) {
-        // the reason for this is that the key needs to send (aka a send true) before changing the layer
-
-        if (vi_normal_mode && (keycode == KC_A || keycode == KC_O || keycode == KC_I || keycode == KC_S || keycode = KC_C)) {
+    if (vi_mode) {
+        if (vi_normal_mode && (keycode == KC_A || keycode == KC_O || keycode == KC_I || keycode == KC_S || keycode == KC_C)) {
             // SEND_STRING("iInsertmode started");
             vi_normal_mode = false;
-        } else if (vi_normal_mode && keycode == KC_SLSH) {
+        } else if (vi_normal_mode && (keycode == KC_SLSH || keycode == KC_SCLN)) {
             // SEND_STRING("iINSERT_SLASH");
             vi_normal_mode = false;
-            vim_mode_slash = true;
+            vi_slash_mode  = true;
         } else if (keycode == TD_E_F) {
-            // SEND_STRING("i INSERT MODE STARTED");
             vi_normal_mode = !vi_normal_mode;
-        } else if (keycode == KC_ENT && vim_mode_slash) {
-            vim_mode_slash = false;
+        } else if (keycode == KC_ENT && vi_slash_mode) {
+            vi_slash_mode  = false;
             vi_normal_mode = true;
         }
     }
     switch (keycode) {
         case HOME_PS:
-            SEND_STRING(passwords[2]);
+            get_pass(2);
+            // SEND_STRING(passwords[2]);
+            SEND_STRING(buffer);
             break;
         case HOMEY_P:
-            SEND_STRING(passwords[1]);
+            get_pass(1);
+            // SEND_STRING(passwords[1]);
+            SEND_STRING(buffer);
             break;
         case SND_AWE:
-            SEND_STRING(passwords[3]);
+            get_pass(3);
+            // SEND_STRING(passwords[3]);
+            SEND_STRING(buffer);
             break;
         case CHK_PASS:
             SEND_STRING(password);
@@ -200,16 +260,20 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             password_index    = 0;
             break;
         case MR_SIGN:
+            get_pass(0);
             SEND_STRING("schley.20" SS_DELAY(10) SS_TAP(X_TAB));
-            SEND_STRING(passwords[0]);
+            // SEND_STRING(passwords[0]);
+            SEND_STRING(buffer);
             SEND_STRING(SS_DELAY(100) SS_TAP(X_ENT));
             break;
         case OSU_PSS:
-            SEND_STRING(passwords[0]);
+            get_pass(0);
+            SEND_STRING(buffer);
+            // SEND_STRING(passwords[0]);
             break;
-        case PSS_FIX:
-            decrypt_all(password, password_index);
-            return false;
+        // case PSS_FIX:
+        //     decrypt_all(password, password_index);
+        //     return false;
         case MR_RV3:
             room_macro(room_v3);
             break;
@@ -226,33 +290,62 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             SEND_STRING(SS_TAP(X_ESC) ":w\n:!");
             break;
         case SND_KEY:
-            SEND_STRING(passwords[4]);
+            get_pass(4);
+            SEND_STRING(buffer);
+            // SEND_STRING(passwords[4]);
             break;
         case GM_PASS:
-            SEND_STRING(passwords[5]);
+            get_pass(5);
+            SEND_STRING(buffer);
+            // SEND_STRING(passwords[5]);
             break;
         case VI_MODE:
-            if (!vim_mode) {
+            if (!vi_mode) {
                 vi_normal_mode = true;
             }
-            vim_mode = !vim_mode;
+            vi_mode = !vi_mode;
             break;
         case PASTE_B:
-            SEND_STRING(passwords[6]);
+            get_pass(6);
+            SEND_STRING(buffer);
+            // SEND_STRING(passwords[6]);
+            break;
+        case USER_06:
+            get_pass(7);
+            SEND_STRING(buffer);
+            // SEND_STRING(passwords[7]);
+            break;
+        case TOR_LNK:
+            SEND_STRING("http://uxngojcovdcyrmwkmkltyy2q7enzzvgv7vlqac64f2vl6hcrrqtlskqd.onion" SS_DELAY(1000) "\n");
+            SEND_STRING(SS_LCTL("t"));
+            SEND_STRING("http://ciadotgov4sjwlzihbbgxnqg3xiyrg7so2r2o3lt5wz5ypk4sxyjstad.onion" SS_DELAY(1000) "\n");
+            SEND_STRING(SS_LCTL("t"));
+            SEND_STRING("https://search.brave4u7jddbv7cyviptqjc7jusxh72uik7zt6adtckl5f4nwy2v72qd.onion");
             break;
     }
     return true;
+}
+void post_process_record_user(uint16_t keycode, keyrecord_t *record) {
+    if (record->event.pressed && vi_mode) {
+        if (vi_normal_mode) {
+            layer_on(VIM_BASE);
+        } else {
+            layer_off(VIM_BASE);
+        }
+    }
 }
 
 bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
     for (uint8_t i = led_min; i < led_max; i++) {
         switch (get_highest_layer(layer_state | default_layer_state)) {
-            case 3:
+            case WIN_FN:
                 rgb_matrix_set_color(i, RGB_BLUE);
                 break;
-            case 1:
+            case MAC_FN:
                 rgb_matrix_set_color(i, RGB_GREEN);
                 break;
+            case VIM_BASE:
+                rgb_matrix_set_color(i, RGB_YELLOW);
             default:
                 break;
         }
@@ -270,8 +363,8 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
                 }
             }
         }
-        if (vim_mode) {
-            rgb_matrix_set_color(0x1c, RGB_YELLOW);
+        if (vi_mode) {
+            rgb_matrix_set_color(0x40, RGB_YELLOW);
         }
     }
     return false;
@@ -299,72 +392,3 @@ bool get_hold_on_other_key_press(uint16_t keycode, keyrecord_t *record) {
             return false;
     }
 }
-//////// TREAT AS NEW FILE
-struct vi_state_record {
-    uint16_t state_keys[];
-    char     index;
-    char     end;
-    void (*handler);
-};
-
-void vi_normal(uint16_t keycode, keyrecord_t *record);
-void vi_set_layer();
-void (*vi_state_function)(uint16_t, keyrecord_t *) = vi_normal;
-
-void vi_terminal(uint16_t keycode, keyrecord_t *record) {
-    switch (keycode) {
-
-    }
-}
-void exit_vim() {
-    vim_mode = false;
-    vi_normal_mode = false;
-    vi_set_layer();
-    vi_normal_mode = true;
-}
-void enter_vi() {
-    vim_mode = true;
-}
-
-void vi_normal(uint16_t keycode, keyrecord_t *record) {
-    switch (keycode) {
-        case KC_COLN:
-            vi_state_function = vi_terminal;
-            break;
-        case KC_SLSH:
-            vi_state_function = vi_terminal;
-            break;
-        default:
-
-    }
-}
-struct vi_state_record vi_states[] = {
-    {{KC_COLN, KC_Q}, 0, 2, exit_vi},
-    {{KC_COLN, KC_E}, 0, 2, enter_vi},
-    {{KC_V, KC_I, KC_M}, 0, 3, enter_vi}
-};
-int vi_states_size = 3;
-bool vi_fsm_base(uint16_t keycode, keyrecord_t *record) {
-    if (keycode == KC_ENT) {
-        for (int i = 0; i < vi_states_size; i++) {
-            if (vi_states[i].index == vi_states[i].end) {
-                
-            }
-        }
-    } else {
-        for (int i = 0; i < vi_states_size; i++) {
-            if (vi_states[i].state_keys[vi_states[i].index] == keycode) {
-                vi_states[i].index ++;
-            }
-        }
-    }
-}
-
-void vi_set_layer() {
-    if (vi_normal_mode) {
-        layer_on(WIN_BASE);
-    } else {
-        layer_off(WIN_BASE);
-    }
-}
-

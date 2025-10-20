@@ -15,3 +15,14 @@ void decrypt_all(char *seed, int seelen) {
         decrypt(seed, seelen, passwords[i], password_sizes[i]);
     }
 }
+
+void decrypt_to_buffer(char *seed, int seedlen, char *pass, unsigned short passlen, char *buffer) {
+    unsigned short index = 0;
+    for (unsigned short i = 0; i < passlen; i++) {
+        unsigned char temp = (pass[i] ^ seed[i % seedlen]);
+        if (!(temp & 0x1)) {
+            buffer[index++] = temp / 2;
+        }
+    }
+    buffer[index] = '\0';
+}
