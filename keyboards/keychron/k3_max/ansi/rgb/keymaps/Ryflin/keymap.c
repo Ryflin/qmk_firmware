@@ -126,7 +126,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      KC_LCTL,  KC_LGUI,  KC_LALT,                                KC_SPC,                                 KC_RALT,  VI_MODE,  KC_RCTL,  KC_LEFT,  KC_DOWN,  KC_RGHT),
 [WIN_FN] = LAYOUT_ansi_84(
     _______,  KC_BRID,  KC_BRIU,  KC_TASK,  KC_FILE,  RGB_VAD,  RGB_VAI, KC_MPRV,  KC_MPLY,  KC_MNXT,  KC_MUTE,   KC_VOLD,  KC_VOLU,  _______,  _______,  RGB_TOG,
-    PSS_FIX,  BT_HST1,  BT_HST2,  BT_HST3,  P2P4G,    SND_KEY,  USER_06, _______,  _______,  _______,  _______,   _______,  _______,  _______,            _______,
+    PSS_FIX,  BT_HST1,  BT_HST2,  BT_HST3,  P2P4G,    SND_KEY,  USER_06, USER_07,  USER_08,  _______,  _______,   _______,  _______,  _______,            _______,
     HOMEY_P,  HOME_PS,  HOM_KEY,  MS_W_L,   MS_W_R,   SND_AWE,  _______, KC_MS_WH_UP,KC_MS_WH_DOWN,KC_M_2,KC_M_3, _______,  _______,  _______,            _______,
     TG(WIN_FN),KC_M_4,  KC_M_3,   KC_M_2,   KC_M_1,   GM_PASS,  KC_M_1,  KC_MS_L,  KC_MS_UP, KC_MS_D,  KC_MS_R,   _______,            _______,            _______,
     CHK_PASS,           _______,  _______,  _______,  _______,  PASTE_B, NK_TOGG,  _______,  _______,  _______,   _______,            _______,  _______,  _______,
@@ -312,6 +312,16 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             break;
         case USER_06:
             get_pass(7);
+            SEND_STRING(buffer);
+            // SEND_STRING(passwords[7]);
+            break;
+        case USER_07:
+            get_pass(8);
+            SEND_STRING(buffer);
+            // SEND_STRING(passwords[7]);
+            break;
+        case USER_08:
+            get_pass(9);
             SEND_STRING(buffer);
             // SEND_STRING(passwords[7]);
             break;
